@@ -5,7 +5,6 @@ from urllib.parse import urlparse
 
 # BlitzFuzz - High-speed URL fuzzer in Python
 
-# Banner function
 def print_banner():
     banner = r'''
  _______  ___      ___   _______  _______ 
@@ -31,7 +30,6 @@ def print_banner():
 '''
     print(banner)
 
-# Helper: Build the target URL based on the mode and word
 def build_url(base, word, mode):
     parsed = urlparse(base)
     if mode == "subdomain":
@@ -70,36 +68,31 @@ def run(wordlist, base_url, mode, rate, timeout, output_file, user_agent):
         return
 
     results = []
-    seen = set()  # Set to store found subdomains to avoid duplicates
+    seen = set()  
 
-    # Initialize the progress bar
     print_progress_bar(0, total_subdomains)
 
-    found_subdomains = []  # List to keep track of found subdomains
+    found_subdomains = []  
 
     for i, word in enumerate(wordlist):
         word = word.strip()
         fuzzed_url = build_url(base_url, word, mode)
 
         if fuzzed_url in seen:
-            continue  # Skip duplicates
+            continue  
 
         seen.add(fuzzed_url)
 
-        # Fetch the URL and check response
         url, status, _ = fetch(fuzzed_url, timeout)
         if status == 200:
             results.append(url)
-            # Print the found subdomains beneath the progress bar
             found_subdomains.append(f"[200] {url} - Found")
 
-        # Print progress bar for every 10 subdomains
         if i % 10 == 0 or i == total_subdomains - 1:
-            print_progress_bar(i + 1, total_subdomains)  # We add +1 to handle the last update
+            print_progress_bar(i + 1, total_subdomains)  
 
-        time.sleep(delay)  # Adjust the rate of requests
+        time.sleep(delay)  
 
-    # After the loop, print the found subdomains below the progress bar
     print("\nFound Subdomains:")
     for subdomain in found_subdomains:
         print(subdomain)
